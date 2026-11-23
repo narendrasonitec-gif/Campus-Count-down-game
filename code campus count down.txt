@@ -1,0 +1,1352 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
+    <title>CAMPUS COUNTDOWN: Your Time. Your Choices. Your Consequences.</title>
+    <!-- Tailwind CSS CDN -->
+    <script src="https://cdn.tailwindcss.com"></script>
+    <!-- Google Font: Outfit -->
+    <link href="https://fonts.googleapis.com/css2?family=Outfit:wght@300;400;500;600;700;800;900&display=swap" rel="stylesheet">
+    <style>
+        body {
+            font-family: 'Outfit', sans-serif;
+            touch-action: none;
+            user-select: none;
+            -webkit-user-select: none;
+        }
+        canvas {
+            image-rendering: pixelated;
+            image-rendering: crisp-edges;
+        }
+        ::-webkit-scrollbar {
+            width: 6px;
+        }
+        ::-webkit-scrollbar-track {
+            background: rgba(31, 41, 55, 0.5);
+        }
+        ::-webkit-scrollbar-thumb {
+            background: rgba(99, 102, 241, 0.8);
+            border-radius: 3px;
+        }
+        @keyframes pulse-slow {
+            0%, 100% { opacity: 1; }
+            50% { opacity: 0.6; }
+        }
+        .animate-pulse-slow {
+            animation: pulse-slow 3s infinite;
+        }
+    </style>
+</head>
+<body class="bg-slate-950 text-slate-100 overflow-hidden h-screen w-screen flex flex-col justify-between select-none">
+
+    <!-- AUDIO TOGGLE FLOATING BUTTON -->
+    <div id="audio-toggle-btn" class="absolute top-4 right-4 z-50 bg-slate-900/80 border border-slate-700 p-2.5 rounded-full cursor-pointer hover:bg-slate-800 transition shadow-lg flex items-center justify-center text-slate-300">
+        <svg id="sound-icon" class="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M15.536 8.464a5 5 0 010 7.072m2.828-9.9a9 9 0 010 12.728M5.586 15H4a1 1 0 01-1-1v-4a1 1 0 011-1h1.586l4.707-4.707C10.923 3.663 12 4.109 12 5v14c0 .891-1.077 1.337-1.707.707L5.586 15z"></path></svg>
+    </div>
+
+    <!-- NOTIFICATION TOAST -->
+    <div id="toast-container" class="absolute top-16 left-1/2 transform -translate-x-1/2 z-50 flex flex-col items-center pointer-events-none space-y-2"></div>
+
+    <!-- ==================== ROLE SELECTION SCREEN ==================== -->
+    <div id="screen-role" class="absolute inset-0 z-50 bg-gradient-to-br from-slate-950 via-indigo-950 to-slate-900 flex flex-col items-center justify-center p-6 overflow-y-auto">
+        <div class="max-w-xl w-full text-center space-y-6">
+            <div class="inline-block px-4 py-1.5 bg-indigo-500/10 border border-indigo-500/30 rounded-full text-indigo-400 text-xs font-semibold tracking-widest uppercase">
+                Multiplayer & Role Selection
+            </div>
+            <h1 class="text-3xl md:text-5xl font-black tracking-tight text-transparent bg-clip-text bg-gradient-to-r from-indigo-400 via-purple-300 to-pink-400">
+                CHOOSE YOUR ROLE
+            </h1>
+            <p class="text-slate-400 text-sm md:text-base">
+                Select how you want to experience life at JEC Jaipur campus.
+            </p>
+
+            <div class="grid grid-cols-1 md:grid-cols-3 gap-4 text-left pt-2">
+                <!-- Narendra Student Role -->
+                <div class="role-card border-2 border-indigo-500/60 bg-indigo-950/40 hover:bg-indigo-900/50 p-5 rounded-2xl cursor-pointer transition flex flex-col justify-between space-y-3 shadow-xl" data-role="student">
+                    <div>
+                        <div class="text-3xl mb-2">🎓</div>
+                        <div class="font-bold text-slate-100 text-base">Narendra Soni</div>
+                        <div class="text-xs text-indigo-400 font-semibold">B.Tech CSE (AI) Student</div>
+                        <div class="text-xs text-slate-300 mt-2">Manage budget, attend classes, shop, meet friends, and survive the 8 PM hostel curfew!</div>
+                    </div>
+                    <div class="text-[10px] bg-indigo-500/20 text-indigo-300 px-2.5 py-1 rounded-lg text-center font-bold">DEFAULT CAMPAIGN</div>
+                </div>
+
+                <!-- Hostel Warden Role -->
+                <div class="role-card border border-slate-800 bg-slate-900/60 hover:bg-slate-800/80 p-5 rounded-2xl cursor-pointer transition flex flex-col justify-between space-y-3 shadow-xl" data-role="warden">
+                    <div>
+                        <div class="text-3xl mb-2">🚨</div>
+                        <div class="font-bold text-slate-100 text-base">Hostel Warden</div>
+                        <div class="text-xs text-amber-400 font-semibold">Campus Enforcer</div>
+                        <div class="text-xs text-slate-300 mt-2">Patrol campus after 8 PM, catch students out late, issue warnings and collect fines!</div>
+                    </div>
+                    <div class="text-[10px] bg-amber-500/20 text-amber-300 px-2.5 py-1 rounded-lg text-center font-bold">AUTHORITY MODE</div>
+                </div>
+
+                <!-- Co-op Friend Role -->
+                <div class="role-card border border-slate-800 bg-slate-900/60 hover:bg-slate-800/80 p-5 rounded-2xl cursor-pointer transition flex flex-col justify-between space-y-3 shadow-xl" data-role="friend">
+                    <div>
+                        <div class="text-3xl mb-2">🤝</div>
+                        <div class="font-bold text-slate-100 text-base">Campus Friend</div>
+                        <div class="text-xs text-emerald-400 font-semibold">Co-op Companion</div>
+                        <div class="text-xs text-slate-300 mt-2">Hang out with Narendra, visit canteens, restaurants, and gaming zones together.</div>
+                    </div>
+                    <div class="text-[10px] bg-emerald-500/20 text-emerald-300 px-2.5 py-1 rounded-lg text-center font-bold">CO-OP MODE</div>
+                </div>
+            </div>
+
+            <div class="pt-4">
+                <button id="btn-confirm-role" class="w-full md:w-auto bg-gradient-to-r from-indigo-600 to-violet-600 hover:from-indigo-500 hover:to-violet-500 text-white font-bold py-3.5 px-10 rounded-xl shadow-lg transition">
+                    Continue to Main Menu
+                </button>
+            </div>
+        </div>
+    </div>
+
+    <!-- ==================== MAIN MENU SCREEN ==================== -->
+    <div id="screen-menu" class="absolute inset-0 z-40 bg-gradient-to-br from-slate-950 via-indigo-950 to-slate-900 hidden flex flex-col items-center justify-center p-6 overflow-y-auto">
+        <div class="max-w-2xl w-full text-center space-y-6">
+            <div class="inline-block px-4 py-1.5 bg-indigo-500/10 border border-indigo-500/30 rounded-full text-indigo-400 text-xs font-semibold tracking-widest uppercase mb-2">
+                JEC Jaipur • Student Life Simulation
+            </div>
+            <h1 class="text-4xl md:text-6xl font-black tracking-tight text-transparent bg-clip-text bg-gradient-to-r from-indigo-400 via-purple-300 to-pink-400 drop-shadow-lg">
+                CAMPUS COUNTDOWN
+            </h1>
+            <p class="text-slate-400 text-base md:text-lg italic tracking-wide max-w-lg mx-auto">
+                "Your Time. Your Choices. Your Consequences."
+            </p>
+
+            <div class="bg-slate-900/60 border border-slate-800/80 rounded-2xl p-6 backdrop-blur-md shadow-2xl space-y-4 max-w-md mx-auto text-left">
+                <div class="flex justify-between items-center text-sm text-slate-300 border-b border-slate-800 pb-2">
+                    <span>Active Profile:</span>
+                    <span id="menu-char-name" class="font-bold text-indigo-400">Narendra Soni (CSE AI)</span>
+                </div>
+                <div class="flex justify-between items-center text-sm text-slate-300 border-b border-slate-800 pb-2">
+                    <span>Selected Role:</span>
+                    <span id="menu-role-display" class="font-bold text-emerald-400">Student</span>
+                </div>
+                <div class="flex justify-between items-center text-sm text-slate-300 border-b border-slate-800 pb-2">
+                    <span>Current Wallet:</span>
+                    <span id="menu-wallet" class="font-bold text-emerald-400">₹2,000</span>
+                </div>
+                <div class="flex justify-between items-center text-sm text-slate-300">
+                    <span>Saved Progress:</span>
+                    <span id="menu-saved-status" class="font-bold text-indigo-400">New Game</span>
+                </div>
+            </div>
+
+            <div class="flex flex-col sm:flex-row gap-3 justify-center items-center max-w-md mx-auto w-full pt-2">
+                <button id="btn-start" class="w-full sm:w-auto flex-1 bg-gradient-to-r from-indigo-600 to-violet-600 hover:from-indigo-500 hover:to-violet-500 text-white font-bold py-3.5 px-8 rounded-xl shadow-lg transition">
+                    Start Game
+                </button>
+            </div>
+
+            <div class="flex flex-wrap justify-center gap-3 pt-2">
+                <button id="btn-rules" class="text-xs text-slate-400 hover:text-slate-200 underline px-3 py-1.5 bg-slate-900/40 rounded-lg border border-slate-800 transition">How to Play</button>
+                <button id="btn-leaderboard" class="text-xs text-slate-400 hover:text-slate-200 underline px-3 py-1.5 bg-slate-900/40 rounded-lg border border-slate-800 transition">Leaderboard</button>
+                <button id="btn-reset" class="text-xs text-rose-400/80 hover:text-rose-300 underline px-3 py-1.5 bg-slate-900/40 rounded-lg border border-slate-800 transition">Reset Save</button>
+            </div>
+        </div>
+    </div>
+
+    <!-- ==================== HOW TO PLAY MODAL ==================== -->
+    <div id="modal-rules" class="absolute inset-0 z-50 bg-slate-950/80 backdrop-blur-sm hidden flex items-center justify-center p-4">
+        <div class="bg-slate-900 border border-slate-800 rounded-2xl max-w-lg w-full p-6 space-y-4 shadow-2xl max-h-[85vh] overflow-y-auto">
+            <h3 class="text-xl font-bold text-indigo-400">How to Play Campus Countdown</h3>
+            <div class="space-y-3 text-sm text-slate-300 leading-relaxed">
+                <p><strong>Goal:</strong> Guide <strong>Narendra Soni</strong> (B.Tech CSE AI) through 7 in-game days, manage hostel attendance curfew (8:00 PM), wallet, energy, and complete campus missions!</p>
+                <p><strong>Controls:</strong> Use <strong>WASD</strong> or <strong>Arrow Keys</strong> to walk. On mobile, use the on-screen joystick. Press <strong>'E'</strong> or tap the interaction button near doors to enter locations or interact with objects.</p>
+                <p><strong>Travel & Payment:</strong> Selecting any building opens the Travel Modal. Choose Walking (₹0), Bus (₹20), or Auto/Taxi (₹150). Costs are automatically deducted.</p>
+                <p><strong>Playable Interiors:</strong> Shopping Mall, College Classrooms, Market, Restaurant, and Gaming Zone feature fully interactive 2D rooms with working stores, classrooms, and mini-games.</p>
+            </div>
+            <div class="text-right pt-2">
+                <button id="btn-rules-close" class="bg-indigo-600 hover:bg-indigo-500 text-white px-5 py-2 rounded-xl text-sm font-bold shadow-md transition">Got it</button>
+            </div>
+        </div>
+    </div>
+
+    <!-- ==================== LEADERBOARD MODAL ==================== -->
+    <div id="modal-leaderboard" class="absolute inset-0 z-50 bg-slate-950/80 backdrop-blur-sm hidden flex items-center justify-center p-4">
+        <div class="bg-slate-900 border border-slate-800 rounded-2xl max-w-md w-full p-6 space-y-4 shadow-2xl">
+            <div class="flex justify-between items-center border-b border-slate-800 pb-3">
+                <h3 class="text-xl font-bold text-amber-400">JEC Jaipur Campus Leaderboard</h3>
+                <span class="text-xs bg-amber-500/10 text-amber-300 px-2.5 py-1 rounded-full border border-amber-500/20">Demo Mode</span>
+            </div>
+            <div id="leaderboard-list" class="space-y-2.5 max-h-60 overflow-y-auto text-sm">
+                <!-- Populated dynamically -->
+            </div>
+            <div class="text-right pt-2">
+                <button id="btn-lb-close" class="bg-slate-800 hover:bg-slate-700 text-slate-200 px-5 py-2 rounded-xl text-sm font-semibold transition">Close</button>
+            </div>
+        </div>
+    </div>
+
+    <!-- ==================== TRAVEL & PAYMENT MODAL ==================== -->
+    <div id="modal-travel" class="absolute inset-0 z-50 bg-slate-950/85 backdrop-blur-md hidden flex items-center justify-center p-4">
+        <div class="bg-slate-900 border border-slate-800 rounded-2xl max-w-md w-full p-6 space-y-5 shadow-2xl">
+            <div class="flex justify-between items-center border-b border-slate-800 pb-3">
+                <div>
+                    <h3 id="travel-modal-title" class="text-xl font-bold text-indigo-400">Travel to Location</h3>
+                    <div class="text-xs text-slate-400 mt-0.5">Select your transport method</div>
+                </div>
+                <button id="btn-travel-close" class="text-slate-400 hover:text-slate-200 text-xl font-bold px-2">&times;</button>
+            </div>
+            <div class="bg-slate-800/60 p-3 rounded-xl flex justify-between items-center text-sm">
+                <span class="text-slate-300">Wallet Balance:</span>
+                <span id="travel-wallet-display" class="font-bold text-emerald-400">₹2,000</span>
+            </div>
+            <div class="space-y-3">
+                <div class="travel-option border border-slate-800 bg-slate-800/40 hover:bg-slate-800 p-3.5 rounded-xl cursor-pointer transition flex justify-between items-center" data-mode="Walk" data-cost="0" data-time="15">
+                    <div>
+                        <div class="font-bold text-slate-200 text-sm">🚶 Walking</div>
+                        <div class="text-xs text-slate-400 mt-0.5">Time: 15 mins | Energy cost: None</div>
+                    </div>
+                    <div class="text-emerald-400 font-bold text-sm">₹0</div>
+                </div>
+                <div class="travel-option border border-slate-800 bg-slate-800/40 hover:bg-slate-800 p-3.5 rounded-xl cursor-pointer transition flex justify-between items-center" data-mode="Bus" data-cost="20" data-time="8">
+                    <div>
+                        <div class="font-bold text-slate-200 text-sm">🚌 City Bus</div>
+                        <div class="text-xs text-slate-400 mt-0.5">Time: 8 mins | Quick & economical</div>
+                    </div>
+                    <div class="text-emerald-400 font-bold text-sm">₹20</div>
+                </div>
+                <div class="travel-option border border-slate-800 bg-slate-800/40 hover:bg-slate-800 p-3.5 rounded-xl cursor-pointer transition flex justify-between items-center" data-mode="Auto" data-cost="150" data-time="3">
+                    <div>
+                        <div class="font-bold text-slate-200 text-sm">🛺 Auto / Taxi</div>
+                        <div class="text-xs text-slate-400 mt-0.5">Time: 3 mins | Fastest option</div>
+                    </div>
+                    <div class="text-emerald-400 font-bold text-sm">₹150</div>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <!-- ==================== GAME HUD ==================== -->
+    <div id="game-hud" class="absolute inset-0 z-20 pointer-events-none hidden flex flex-col justify-between p-3 md:p-4">
+        <!-- Top HUD Bar -->
+        <div class="flex flex-wrap items-center justify-between gap-2 pointer-events-auto">
+            <!-- Left: Time & Day -->
+            <div class="bg-slate-900/90 border border-slate-800/80 rounded-2xl px-4 py-2 flex items-center gap-3 shadow-xl backdrop-blur-md">
+                <div class="text-amber-400 font-extrabold text-lg flex items-center gap-1.5">
+                    <span id="hud-clock">08:00 AM</span>
+                </div>
+                <div class="h-4 w-px bg-slate-800"></div>
+                <div class="text-xs font-semibold text-slate-300">
+                    Day <span id="hud-day" class="text-indigo-400 font-bold">1</span>/7 <span class="text-slate-500">(L<span id="hud-level">1</span>)</span>
+                </div>
+            </div>
+
+            <!-- Center: Wallet & Role Badge -->
+            <div class="bg-slate-900/90 border border-slate-800/80 rounded-2xl px-4 py-2 flex items-center gap-4 shadow-xl backdrop-blur-md">
+                <div>
+                    <div class="text-[10px] text-slate-400 font-medium uppercase tracking-wider">Wallet (<span id="hud-role-name" class="text-indigo-400">Narendra</span>)</div>
+                    <div id="hud-wallet" class="text-emerald-400 font-bold text-sm md:text-base">₹2,000</div>
+                </div>
+                <div class="h-4 w-px bg-slate-800"></div>
+                <div>
+                    <div class="text-[10px] text-slate-400 font-medium uppercase tracking-wider">Daily Limit</div>
+                    <div id="hud-limit" class="text-slate-200 font-semibold text-xs md:text-sm">₹150 left</div>
+                </div>
+            </div>
+
+            <!-- Right: Energy & Menu -->
+            <div class="flex items-center gap-2">
+                <div class="bg-slate-900/90 border border-slate-800/80 rounded-2xl px-3 py-2 flex items-center gap-3 shadow-xl backdrop-blur-md">
+                    <div class="flex flex-col">
+                        <div class="flex justify-between text-[10px] text-slate-400 font-medium mb-0.5">
+                            <span>Energy</span>
+                            <span id="hud-energy-text">100%</span>
+                        </div>
+                        <div class="w-20 md:w-28 bg-slate-800 h-2 rounded-full overflow-hidden">
+                            <div id="hud-energy-bar" class="bg-emerald-500 h-full w-full transition-all duration-300"></div>
+                        </div>
+                    </div>
+                </div>
+                <button id="btn-pause" class="bg-slate-900/90 hover:bg-slate-800 border border-slate-800 text-slate-300 p-2.5 rounded-2xl shadow-xl transition flex items-center justify-center">
+                    <svg class="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M4 6h16M4 12h16M4 18h16"></path></svg>
+                </button>
+            </div>
+        </div>
+
+        <!-- Middle: Mission Active Tracker -->
+        <div class="self-start bg-slate-900/90 border border-indigo-500/30 rounded-xl px-4 py-2 shadow-lg backdrop-blur-md max-w-xs pointer-events-auto">
+            <div class="text-[10px] text-indigo-400 font-bold uppercase tracking-wider flex items-center justify-between">
+                <span>Active Objective</span>
+                <span id="hud-mission-timer" class="text-amber-400"></span>
+            </div>
+            <div id="hud-mission-title" class="text-xs text-slate-200 font-medium mt-0.5">Explore campus and visit Canteen!</div>
+        </div>
+
+        <!-- Bottom HUD Bar -->
+        <div class="flex items-end justify-between w-full pointer-events-auto pb-2">
+            <div id="scene-indicator" class="bg-slate-900/90 border border-slate-700 text-slate-300 px-4 py-2 rounded-xl text-xs font-semibold backdrop-blur-md shadow-lg">
+                JEC Jaipur Open World Map
+            </div>
+
+            <!-- Interaction Prompt -->
+            <div id="interaction-prompt" class="hidden bg-indigo-600 hover:bg-indigo-500 text-white font-bold px-5 py-3 rounded-2xl shadow-lg border border-indigo-400/50 cursor-pointer animate-pulse flex items-center gap-2 text-sm">
+                <span>Press 'E' / Tap to Enter</span>
+                <span id="prompt-location-name" class="bg-indigo-900 px-2 py-0.5 rounded text-xs">Building</span>
+            </div>
+
+            <!-- Mobile Touch Joystick -->
+            <div id="mobile-controls" class="flex md:hidden items-center gap-3">
+                <div id="touch-joystick-base" class="relative w-32 h-32 bg-slate-900/60 border border-slate-700 rounded-full flex items-center justify-center backdrop-blur-sm">
+                    <div id="touch-joystick-thumb" class="absolute w-12 h-12 bg-indigo-600 rounded-full shadow-lg pointer-events-none"></div>
+                </div>
+                <div class="flex flex-col gap-2">
+                    <button id="btn-touch-interact" class="bg-indigo-600 active:bg-indigo-700 text-white font-bold w-16 h-16 rounded-full shadow-xl flex items-center justify-center text-xs border border-indigo-400">ENTER</button>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <!-- ==================== LOCATION INTERIOR ACTION MODAL ==================== -->
+    <div id="modal-interior-action" class="absolute inset-0 z-50 bg-slate-950/85 backdrop-blur-md hidden flex items-center justify-center p-4">
+        <div class="bg-slate-900 border border-slate-800 rounded-2xl max-w-lg w-full p-6 shadow-2xl space-y-5">
+            <div class="flex justify-between items-center border-b border-slate-800 pb-3">
+                <h3 id="modal-interior-title" class="text-2xl font-bold text-indigo-400">Interior Action</h3>
+                <button id="btn-interior-close" class="text-slate-400 hover:text-slate-200 text-xl font-bold px-2">&times;</button>
+            </div>
+            <div id="modal-interior-content" class="space-y-4 text-sm text-slate-300 max-h-[65vh] overflow-y-auto">
+                <!-- Populated dynamically -->
+            </div>
+        </div>
+    </div>
+
+    <!-- ==================== PAUSE MENU MODAL ==================== -->
+    <div id="modal-pause" class="absolute inset-0 z-50 bg-slate-950/90 backdrop-blur-md hidden flex items-center justify-center p-4">
+        <div class="bg-slate-900 border border-slate-800 rounded-2xl max-w-md w-full p-6 space-y-5 shadow-2xl text-center">
+            <h3 class="text-2xl font-bold text-indigo-400">Game Paused</h3>
+            <div class="space-y-3">
+                <button id="btn-resume" class="w-full bg-indigo-600 hover:bg-indigo-500 text-white font-bold py-3 rounded-xl shadow-lg transition">Resume Game</button>
+                <button id="btn-save" class="w-full bg-slate-800 hover:bg-slate-700 text-slate-200 font-semibold py-3 rounded-xl transition">Save Game</button>
+                <button id="btn-quit" class="w-full bg-rose-950/40 hover:bg-rose-900/50 text-rose-300 border border-rose-800/50 font-semibold py-3 rounded-xl transition">Quit to Main Menu</button>
+            </div>
+        </div>
+    </div>
+
+    <!-- ==================== CANVAS GAME CONTAINER ==================== -->
+    <div class="absolute inset-0 z-10 overflow-hidden">
+        <canvas id="gameCanvas" class="w-full h-full block"></canvas>
+    </div>
+
+    <!-- ==================== JAVASCRIPT GAME ENGINE ==================== -->
+    <script>
+        /* ==================== AUDIO SYNTHESIZER ==================== */
+        class SoundEngine {
+            constructor() {
+                this.muted = false;
+                this.audioCtx = null;
+            }
+            init() {
+                if (!this.audioCtx) {
+                    const AudioContext = window.AudioContext || window.webkitAudioContext;
+                    this.audioCtx = new AudioContext();
+                }
+                if (this.audioCtx.state === 'suspended') {
+                    this.audioCtx.resume();
+                }
+            }
+            playTone(freq, duration, type = 'sine', gainVal = 0.1) {
+                if (this.muted) return;
+                try {
+                    this.init();
+                    const osc = this.audioCtx.createOscillator();
+                    const gain = this.audioCtx.createGain();
+                    osc.type = type;
+                    osc.frequency.setValueAtTime(freq, this.audioCtx.currentTime);
+                    gain.gain.setValueAtTime(gainVal, this.audioCtx.currentTime);
+                    gain.gain.exponentialRampToValueAtTime(0.0001, this.audioCtx.currentTime + duration);
+                    osc.connect(gain);
+                    gain.connect(this.audioCtx.destination);
+                    osc.start();
+                    osc.stop(this.audioCtx.currentTime + duration);
+                } catch(e) {}
+            }
+            click() { this.playTone(600, 0.08, 'triangle', 0.08); }
+            coin() {
+                if (this.muted) return;
+                try {
+                    this.init();
+                    const now = this.audioCtx.currentTime;
+                    const osc = this.audioCtx.createOscillator();
+                    const gain = this.audioCtx.createGain();
+                    osc.type = 'sine';
+                    osc.frequency.setValueAtTime(987.77, now);
+                    osc.frequency.setValueAtTime(1318.51, now + 0.08);
+                    gain.gain.setValueAtTime(0.12, now);
+                    gain.gain.exponentialRampToValueAtTime(0.0001, now + 0.3);
+                    osc.connect(gain);
+                    gain.connect(this.audioCtx.destination);
+                    osc.start(now);
+                    osc.stop(now + 0.3);
+                } catch(e){}
+            }
+            success() {
+                if (this.muted) return;
+                try {
+                    this.init();
+                    const now = this.audioCtx.currentTime;
+                    [523.25, 659.25, 783.99, 1046.50].forEach((f, i) => {
+                        const osc = this.audioCtx.createOscillator();
+                        const gain = this.audioCtx.createGain();
+                        osc.type = 'triangle';
+                        osc.frequency.setValueAtTime(f, now + i * 0.08);
+                        gain.gain.setValueAtTime(0.1, now + i * 0.08);
+                        gain.gain.exponentialRampToValueAtTime(0.0001, now + i * 0.08 + 0.2);
+                        osc.connect(gain);
+                        gain.connect(this.audioCtx.destination);
+                        osc.start(now + i * 0.08);
+                        osc.stop(now + i * 0.08 + 0.2);
+                    });
+                } catch(e){}
+            }
+            alarm() {
+                if (this.muted) return;
+                this.playTone(300, 0.3, 'sawtooth', 0.15);
+            }
+        }
+        const sounds = new SoundEngine();
+
+        /* ==================== GAME CONFIG & STATE ==================== */
+        const WORLD_WIDTH = 3200;
+        const WORLD_HEIGHT = 2400;
+
+        let gameState = {
+            screen: 'ROLE', // ROLE, MENU, PLAYING, PAUSED
+            role: 'student', // 'student', 'warden', 'friend'
+            playerName: 'Narendra Soni',
+            currentScene: 'WORLD', // WORLD, or INTERIOR_mall, INTERIOR_college, INTERIOR_classroom, INTERIOR_market, INTERIOR_restaurant, INTERIOR_gaming, INTERIOR_canteen, INTERIOR_hostel
+            day: 1,
+            level: 1,
+            hour: 8,
+            minute: 0,
+            wallet: 2000,
+            savings: 0,
+            borrowed: 0,
+            dailySpent: 0,
+            dailyLimit: 150,
+            energy: 100,
+            xp: 0,
+            rank: 'Freshman',
+            wardenWarnings: 0,
+            wardenFineTotal: 0,
+            currentMissionId: 'explore_campus',
+            completedMissions: [],
+            inventory: [],
+            transactions: [],
+            playerX: 1600,
+            playerY: 1200,
+            interiorPlayerX: 500,
+            interiorPlayerY: 350,
+            playerSpeed: 3.8,
+            isMoving: false,
+            facing: 'down'
+        };
+
+        const LEVEL_CONFIG = {
+            1: { name: 'Easy', days: [1, 2], budget: 400 },
+            2: { name: 'Medium', days: [3, 4], budget: 600 },
+            3: { name: 'Hard', days: [5, 6, 7], budget: 800 }
+        };
+
+        const MISSIONS = {
+            explore_campus: { title: 'Explore JEC Campus & Visit Canteen', reward: 100, xp: 50, desc: 'Walk around the university map and check out the Canteen.' },
+            shopping_mall: { title: 'Shopping Mall Challenge', reward: 150, xp: 80, desc: 'Visit Shopping Mall and buy academic supplies under ₹200.' },
+            market_run: { title: 'Local Market Grocery Run', reward: 120, xp: 70, desc: 'Buy groceries from Local Market before 5 PM.' },
+            restaurant_meet: { title: 'Friends Meet-up at Restaurant', reward: 200, xp: 100, desc: 'Meet friends at Restaurant for dinner.' },
+            gaming_zone: { title: 'Gaming Zone Stress Relief', reward: 130, xp: 75, desc: 'Play arcade games at Gaming Zone.' },
+            hostel_curfew: { title: 'Hostel Curfew Challenge', reward: 300, xp: 150, desc: 'Return safely to Hostel before 8:00 PM warden deadline!' }
+        };
+
+        const BUILDINGS = [
+            { id: 'hostel', name: 'Hostel (Home)', x: 400, y: 400, w: 220, h: 180, color: '#4f46e5', icon: '🏨' },
+            { id: 'college', name: 'JEC College Campus', x: 1500, y: 300, w: 280, h: 200, color: '#0284c7', icon: '🏛️' },
+            { id: 'canteen', name: 'Campus Canteen', x: 1900, y: 600, w: 180, h: 150, color: '#16a34a', icon: '🍔' },
+            { id: 'mall', name: 'Shopping Mall', x: 2600, y: 400, w: 260, h: 200, color: '#9333ea', icon: '🛍️' },
+            { id: 'market', name: 'Local Market', x: 400, y: 1400, w: 220, h: 180, color: '#d97706', icon: '🛒' },
+            { id: 'restaurant', name: 'City Restaurant', x: 2600, y: 1400, w: 240, h: 180, color: '#dc2626', icon: '🍽️' },
+            { id: 'bus_stop', name: 'Bus Stop (Transit)', x: 1500, y: 1200, w: 160, h: 140, color: '#475569', icon: '🚏' },
+            { id: 'gaming_zone', name: 'Gaming Zone Arcade', x: 1500, y: 1800, w: 220, h: 160, color: '#db2777', icon: '🎮' }
+        ];
+
+        let npcs = [];
+        let vehicles = [];
+
+        function initWorldEntities() {
+            npcs = [];
+            for (let i = 0; i < 15; i++) {
+                npcs.push({
+                    x: Math.random() * (WORLD_WIDTH - 400) + 200,
+                    y: Math.random() * (WORLD_HEIGHT - 400) + 200,
+                    vx: (Math.random() - 0.5) * 1.5,
+                    vy: (Math.random() - 0.5) * 1.5,
+                    color: ['#f43f5e', '#38bdf8', '#fbbf24', '#a855f7'][Math.floor(Math.random() * 4)]
+                });
+            }
+            vehicles = [];
+            for (let i = 0; i < 6; i++) {
+                vehicles.push({
+                    x: Math.random() * WORLD_WIDTH,
+                    y: 900 + (i % 2) * 600,
+                    speed: (i % 2 === 0 ? 3 : -3),
+                    color: ['#e2e8f0', '#cbd5e1', '#94a3b8'][Math.floor(Math.random() * 3)]
+                });
+            }
+        }
+
+        /* ==================== CANVAS SETUP ==================== */
+        const canvas = document.getElementById('gameCanvas');
+        const ctx = canvas.getContext('2d');
+
+        function resizeCanvas() {
+            canvas.width = window.innerWidth;
+            canvas.height = window.innerHeight;
+        }
+        window.addEventListener('resize', resizeCanvas);
+        resizeCanvas();
+
+        /* ==================== INPUT HANDLING ==================== */
+        const keys = {};
+        window.addEventListener('keydown', (e) => {
+            keys[e.key.toLowerCase()] = true;
+            if (e.key.toLowerCase() === 'e') {
+                handleInteractionKey();
+            }
+        });
+        window.addEventListener('keyup', (e) => {
+            keys[e.key.toLowerCase()] = false;
+        });
+
+        let touchActive = false;
+        let touchStartX = 0;
+        let touchStartY = 0;
+        let joystickDeltaX = 0;
+        let joystickDeltaY = 0;
+
+        const joystickBase = document.getElementById('touch-joystick-base');
+        const joystickThumb = document.getElementById('touch-joystick-thumb');
+
+        joystickBase.addEventListener('touchstart', (e) => {
+            touchActive = true;
+            const touch = e.touches[0];
+            const rect = joystickBase.getBoundingClientRect();
+            touchStartX = rect.left + rect.width / 2;
+            touchStartY = rect.top + rect.height / 2;
+            updateJoystick(touch.clientX, touch.clientY);
+        });
+
+        joystickBase.addEventListener('touchmove', (e) => {
+            if (!touchActive) return;
+            const touch = e.touches[0];
+            updateJoystick(touch.clientX, touch.clientY);
+        });
+
+        joystickBase.addEventListener('touchend', () => {
+            touchActive = false;
+            joystickDeltaX = 0;
+            joystickDeltaY = 0;
+            joystickThumb.style.transform = `translate(0px, 0px)`;
+        });
+
+        function updateJoystick(clientX, clientY) {
+            const dx = clientX - touchStartX;
+            const dy = clientY - touchStartY;
+            const dist = Math.sqrt(dx * dx + dy * dy);
+            const maxDist = 45;
+            const angle = Math.atan2(dy, dx);
+            const cappedDist = Math.min(dist, maxDist);
+            const thumbX = Math.cos(angle) * cappedDist;
+            const thumbY = Math.sin(angle) * cappedDist;
+
+            joystickThumb.style.transform = `translate(${thumbX}px, ${thumbY}px)`;
+            joystickDeltaX = thumbX / maxDist;
+            joystickDeltaY = thumbY / maxDist;
+        }
+
+        document.getElementById('btn-touch-interact').addEventListener('click', () => {
+            handleInteractionKey();
+        });
+
+        function handleInteractionKey() {
+            if (gameState.currentScene === 'WORLD') {
+                if (activeBuilding) {
+                    openTravelModal(activeBuilding);
+                }
+            } else {
+                const exitDist = Math.hypot(gameState.interiorPlayerX - (canvas.width / 2), gameState.interiorPlayerY - (canvas.height - 80));
+                if (exitDist < 100) {
+                    exitInteriorScene();
+                } else {
+                    openInteriorActionModal(gameState.currentScene);
+                }
+            }
+        }
+
+        /* ==================== ROLE SELECTION LOGIC ==================== */
+        document.querySelectorAll('.role-card').forEach(card => {
+            card.addEventListener('click', () => {
+                document.querySelectorAll('.role-card').forEach(c => c.classList.remove('border-indigo-500', 'bg-indigo-950/40'));
+                card.classList.add('border-indigo-500', 'bg-indigo-950/40');
+                gameState.role = card.getAttribute('data-role');
+                sounds.click();
+            });
+        });
+
+        document.getElementById('btn-confirm-role').addEventListener('click', () => {
+            sounds.click();
+            document.getElementById('screen-role').classList.add('hidden');
+            document.getElementById('screen-menu').classList.remove('hidden');
+
+            const roleNames = {
+                student: 'Narendra Soni (CSE AI)',
+                warden: 'Hostel Warden Sharma',
+                friend: 'Narendra & Friend Co-op'
+            };
+            document.getElementById('menu-char-name').innerText = roleNames[gameState.role];
+            document.getElementById('menu-role-display').innerText = gameState.role.toUpperCase();
+            document.getElementById('hud-role-name').innerText = gameState.role === 'warden' ? 'Warden' : 'Narendra';
+        });
+
+        /* ==================== SAVE SYSTEM ==================== */
+        function saveGame() {
+            localStorage.setItem('jec_campus_countdown_save', JSON.stringify(gameState));
+            showToast('Game saved successfully!', 'success');
+            sounds.success();
+        }
+
+        function loadGame() {
+            const saved = localStorage.getItem('jec_campus_countdown_save');
+            if (saved) {
+                try {
+                    gameState = JSON.parse(saved);
+                    document.getElementById('menu-wallet').innerText = '₹' + gameState.wallet.toLocaleString();
+                    document.getElementById('menu-saved-status').innerText = `Day ${gameState.day} (Level ${gameState.level})`;
+                    showToast('Loaded saved game for Narendra Soni!', 'success');
+                } catch(e) {}
+            }
+        }
+        loadGame();
+
+        function resetGameSave() {
+            localStorage.removeItem('jec_campus_countdown_save');
+            showToast('Save data reset.', 'error');
+            sounds.click();
+        }
+
+        /* ==================== TOAST NOTIFICATIONS ==================== */
+        function showToast(msg, type = 'info') {
+            const container = document.getElementById('toast-container');
+            const toast = document.createElement('div');
+            let bg = 'bg-slate-900 border-slate-700 text-slate-200';
+            if (type === 'success') bg = 'bg-emerald-950/90 border-emerald-500/50 text-emerald-200';
+            if (type === 'error') bg = 'bg-rose-950/90 border-rose-500/50 text-rose-200';
+            if (type === 'warning') bg = 'bg-amber-950/90 border-amber-500/50 text-amber-200';
+
+            toast.className = `pointer-events-auto px-4 py-2.5 rounded-xl border shadow-xl backdrop-blur-md text-xs md:text-sm font-semibold transition transform duration-300 translate-y-2 opacity-0 ${bg}`;
+            toast.innerText = msg;
+            container.appendChild(toast);
+
+            setTimeout(() => toast.classList.remove('translate-y-2', 'opacity-0'), 10);
+            setTimeout(() => {
+                toast.classList.add('translate-y-2', 'opacity-0');
+                setTimeout(() => toast.remove(), 300);
+            }, 3000);
+        }
+
+        /* ==================== TRAVEL & PAYMENT SYSTEM ==================== */
+        let pendingDestination = null;
+
+        function openTravelModal(building) {
+            sounds.click();
+            pendingDestination = building;
+            document.getElementById('travel-modal-title').innerText = `Travel to ${building.name}`;
+            document.getElementById('travel-wallet-display').innerText = '₹' + gameState.wallet.toLocaleString();
+            document.getElementById('modal-travel').classList.remove('hidden');
+        }
+
+        document.getElementById('btn-travel-close').addEventListener('click', () => {
+            sounds.click();
+            document.getElementById('modal-travel').classList.add('hidden');
+            pendingDestination = null;
+        });
+
+        document.querySelectorAll('.travel-option').forEach(option => {
+            option.addEventListener('click', () => {
+                if (!pendingDestination) return;
+                const mode = option.getAttribute('data-mode');
+                const cost = parseInt(option.getAttribute('data-cost'));
+                const timeMins = parseInt(option.getAttribute('data-time'));
+
+                if (gameState.wallet < cost) {
+                    sounds.alarm();
+                    showToast(`Insufficient balance for ${mode}! Cost: ₹${cost}`, 'error');
+                    return;
+                }
+
+                gameState.wallet -= cost;
+                gameState.dailySpent += cost;
+                gameState.minute += timeMins;
+                if (gameState.minute >= 60) {
+                    gameState.minute -= 60;
+                    gameState.hour += 1;
+                }
+
+                sounds.coin();
+                showToast(`Traveled via ${mode} to ${pendingDestination.name} (-₹${cost})`, 'success');
+                document.getElementById('modal-travel').classList.add('hidden');
+
+                enterInteriorScene(pendingDestination.id);
+                pendingDestination = null;
+            });
+        });
+
+        function enterInteriorScene(buildingId) {
+            gameState.currentScene = 'INTERIOR_' + buildingId;
+            gameState.interiorPlayerX = canvas.width / 2;
+            gameState.interiorPlayerY = canvas.height / 2 + 100;
+            document.getElementById('scene-indicator').innerText = `Inside: ${buildingId.toUpperCase()}`;
+        }
+
+        function exitInteriorScene() {
+            sounds.click();
+            gameState.currentScene = 'WORLD';
+            document.getElementById('scene-indicator').innerText = 'JEC Jaipur Open World Map';
+            showToast('Returned to JEC Campus open world', 'info');
+        }
+
+        /* ==================== LOCATION INTERIORS & ACTIONS ==================== */
+        function openInteriorActionModal(sceneId) {
+            sounds.click();
+            document.getElementById('modal-interior-action').classList.remove('hidden');
+            const titleEl = document.getElementById('modal-interior-title');
+            const contentEl = document.getElementById('modal-interior-content');
+
+            if (sceneId === 'INTERIOR_hostel') {
+                titleEl.innerText = 'Hostel Dorm Room - Narendra';
+                contentEl.innerHTML = `
+                    <p class="text-slate-300">Narendra's hostel room at JEC. Rest to recover energy or borrow emergency funds.</p>
+                    <div class="bg-slate-800/80 p-3 rounded-xl space-y-2 text-xs">
+                        <div class="flex justify-between"><span>Current Energy:</span> <span class="text-emerald-400 font-bold">${gameState.energy}%</span></div>
+                        <div class="flex justify-between"><span>Curfew Reminder:</span> <span class="text-amber-400 font-bold">8:00 PM Deadline</span></div>
+                    </div>
+                    <div class="flex gap-2 pt-2">
+                        <button onclick="actionHostelRest()" class="flex-1 bg-emerald-600 hover:bg-emerald-500 text-white font-bold py-2.5 rounded-xl shadow transition">Rest & Sleep (+50 Energy)</button>
+                        <button onclick="actionBorrow()" class="flex-1 bg-slate-800 hover:bg-slate-700 text-slate-200 font-semibold py-2.5 rounded-xl transition">Borrow Funds</button>
+                    </div>
+                `;
+            } else if (sceneId === 'INTERIOR_college') {
+                titleEl.innerText = 'JEC CSE (AI) Department Hallway';
+                contentEl.innerHTML = `
+                    <p class="text-slate-300">Main academic block for Computer Science & AI students.</p>
+                    <div class="grid grid-cols-2 gap-3 pt-2">
+                        <button onclick="actionAttendClassroom()" class="bg-indigo-600 hover:bg-indigo-500 text-white font-bold p-3 rounded-xl text-left transition">
+                            <div class="font-bold">Attend AI Classroom</div>
+                            <div class="text-xs text-indigo-200 mt-1">+30 XP, -15 Energy</div>
+                        </button>
+                        <button onclick="actionVisitLibrary()" class="bg-slate-800 hover:bg-slate-700 border border-slate-700 p-3 rounded-xl text-left transition">
+                            <div class="font-bold text-slate-200">Library Research</div>
+                            <div class="text-xs text-emerald-400 mt-1">+20 XP, Quiet Study</div>
+                        </button>
+                    </div>
+                `;
+            } else if (sceneId === 'INTERIOR_canteen') {
+                titleEl.innerText = 'JEC Campus Canteen';
+                contentEl.innerHTML = `
+                    <p class="text-slate-300">Fresh snacks, coffee, and meals for students.</p>
+                    <div class="grid grid-cols-2 gap-3 pt-2">
+                        <button onclick="actionBuyFood('Masala Chai & Samosa', 30, 20)" class="bg-slate-800 hover:bg-slate-700 border border-slate-700 p-3 rounded-xl text-left transition">
+                            <div class="font-bold text-slate-200">Samosa & Chai</div>
+                            <div class="text-xs text-emerald-400 font-semibold mt-1">₹30 (+20% Energy)</div>
+                        </button>
+                        <button onclick="actionBuyFood('Full Thali Meal', 90, 60)" class="bg-slate-800 hover:bg-slate-700 border border-slate-700 p-3 rounded-xl text-left transition">
+                            <div class="font-bold text-slate-200">Full Thali</div>
+                            <div class="text-xs text-emerald-400 font-semibold mt-1">₹90 (+60% Energy)</div>
+                        </button>
+                    </div>
+                `;
+            } else if (sceneId === 'INTERIOR_mall') {
+                titleEl.innerText = 'Shopping Mall - Retail Store';
+                contentEl.innerHTML = `
+                    <p class="text-slate-300">Electronics, academic notebooks, and apparel store.</p>
+                    <div class="grid grid-cols-2 gap-3 pt-2">
+                        <button onclick="actionBuyItem('Academic Notebook', 80, 'shopping_mall')" class="bg-slate-800 hover:bg-slate-700 border border-slate-700 p-3 rounded-xl text-left transition">
+                            <div class="font-bold text-slate-200">AI Notebook</div>
+                            <div class="text-xs text-indigo-400 font-semibold mt-1">₹80 (Mission Item)</div>
+                        </button>
+                        <button onclick="actionBuyItem('Headphones', 180)" class="bg-slate-800 hover:bg-slate-700 border border-slate-700 p-3 rounded-xl text-left transition">
+                            <div class="font-bold text-slate-200">Headphones</div>
+                            <div class="text-xs text-indigo-400 font-semibold mt-1">₹180 (Stress Reliever)</div>
+                        </button>
+                    </div>
+                `;
+            } else if (sceneId === 'INTERIOR_market') {
+                titleEl.innerText = 'Local Jaipur Market Stalls';
+                contentEl.innerHTML = `
+                    <p class="text-slate-300">Vibrant local market with fruits and daily groceries.</p>
+                    <div class="grid grid-cols-2 gap-3 pt-2">
+                        <button onclick="actionBuyItem('Fresh Fruits', 60, 'market_run')" class="bg-slate-800 hover:bg-slate-700 border border-slate-700 p-3 rounded-xl text-left transition">
+                            <div class="font-bold text-slate-200">Fresh Fruit Basket</div>
+                            <div class="text-xs text-indigo-400 font-semibold mt-1">₹60 (Mission Item)</div>
+                        </button>
+                        <button onclick="actionBuyItem('Snack Pack', 40)" class="bg-slate-800 hover:bg-slate-700 border border-slate-700 p-3 rounded-xl text-left transition">
+                            <div class="font-bold text-slate-200">Snack Pack</div>
+                            <div class="text-xs text-indigo-400 font-semibold mt-1">₹40 (+10 Energy)</div>
+                        </button>
+                    </div>
+                `;
+            } else if (sceneId === 'INTERIOR_restaurant') {
+                titleEl.innerText = 'City Restaurant';
+                contentEl.innerHTML = `
+                    <p class="text-slate-300">Dinner meetup spot with friends.</p>
+                    <div class="pt-2">
+                        <button onclick="actionDineRestaurant()" class="w-full bg-rose-600 hover:bg-rose-500 text-white font-bold py-3 rounded-xl shadow transition">Order Dinner with Friends (₹180, +100 XP)</button>
+                    </div>
+                `;
+            } else if (sceneId === 'INTERIOR_gaming') {
+                titleEl.innerText = 'Gaming Zone Arcade';
+                contentEl.innerHTML = `
+                    <p class="text-slate-300">Arcade machines and multiplayer gaming setups.</p>
+                    <div class="pt-2">
+                        <button onclick="actionPlayGames()" class="w-full bg-pink-600 hover:bg-pink-500 text-white font-bold py-3 rounded-xl shadow transition">Play Arcade Session (₹100, +75 XP)</button>
+                    </div>
+                `;
+            }
+        }
+
+        document.getElementById('btn-interior-close').addEventListener('click', () => {
+            sounds.click();
+            document.getElementById('modal-interior-action').classList.add('hidden');
+        });
+
+        function actionHostelRest() {
+            gameState.energy = Math.min(100, gameState.energy + 50);
+            gameState.minute += 45;
+            sounds.success();
+            showToast('Narendra rested at hostel. Energy restored!', 'success');
+            document.getElementById('modal-interior-action').classList.add('hidden');
+        }
+
+        function actionBorrow() {
+            const borrowLimit = LEVEL_CONFIG[gameState.level].budget * 0.25;
+            gameState.wallet += borrowLimit;
+            gameState.borrowed += borrowLimit;
+            sounds.coin();
+            showToast(`Borrowed ₹${borrowLimit} emergency reserve!`, 'warning');
+            document.getElementById('modal-interior-action').classList.add('hidden');
+        }
+
+        function actionAttendClassroom() {
+            if (gameState.energy < 15) {
+                showToast('Too exhausted for class! Rest first.', 'error');
+                return;
+            }
+            gameState.energy -= 15;
+            gameState.xp += 30;
+            gameState.minute += 60;
+            updateRank();
+            if (gameState.currentMissionId === 'explore_campus') completeCurrentMission('shopping_mall');
+            sounds.success();
+            showToast('Attended AI lecture! +30 XP earned.', 'success');
+            document.getElementById('modal-interior-action').classList.add('hidden');
+        }
+
+        function actionVisitLibrary() {
+            gameState.xp += 20;
+            gameState.minute += 30;
+            updateRank();
+            sounds.success();
+            showToast('Library research session complete! +20 XP', 'success');
+            document.getElementById('modal-interior-action').classList.add('hidden');
+        }
+
+        function actionBuyFood(name, cost, energyGain) {
+            if (gameState.wallet < cost) {
+                showToast('Insufficient wallet balance!', 'error');
+                return;
+            }
+            gameState.wallet -= cost;
+            gameState.dailySpent += cost;
+            gameState.energy = Math.min(100, gameState.energy + energyGain);
+            sounds.coin();
+            showToast(`Purchased ${name} for ₹${cost}`, 'success');
+            document.getElementById('modal-interior-action').classList.add('hidden');
+        }
+
+        function actionBuyItem(name, cost, missionKey = null) {
+            if (gameState.wallet < cost) {
+                showToast('Insufficient wallet balance!', 'error');
+                return;
+            }
+            gameState.wallet -= cost;
+            gameState.dailySpent += cost;
+            gameState.inventory.push(name);
+            sounds.coin();
+            showToast(`Purchased ${name} for ₹${cost}`, 'success');
+            if (missionKey && gameState.currentMissionId === missionKey) {
+                completeCurrentMission(missionKey === 'shopping_mall' ? 'market_run' : 'restaurant_meet');
+            }
+            document.getElementById('modal-interior-action').classList.add('hidden');
+        }
+
+        function actionDineRestaurant() {
+            const cost = 180;
+            if (gameState.wallet < cost) {
+                showToast('Insufficient funds for restaurant!', 'error');
+                return;
+            }
+            gameState.wallet -= cost;
+            gameState.dailySpent += cost;
+            gameState.energy = 100;
+            gameState.xp += 100;
+            sounds.success();
+            showToast('Enjoyed dinner with friends! +100 XP', 'success');
+            if (gameState.currentMissionId === 'restaurant_meet') completeCurrentMission('gaming_zone');
+            document.getElementById('modal-interior-action').classList.add('hidden');
+        }
+
+        function actionPlayGames() {
+            const cost = 100;
+            if (gameState.wallet < cost) {
+                showToast('Insufficient funds for arcade!', 'error');
+                return;
+            }
+            gameState.wallet -= cost;
+            gameState.dailySpent += cost;
+            gameState.xp += 75;
+            sounds.success();
+            showToast('Arcade session complete! +75 XP', 'success');
+            if (gameState.currentMissionId === 'gaming_zone') completeCurrentMission('hostel_curfew');
+            document.getElementById('modal-interior-action').classList.add('hidden');
+        }
+
+        function completeCurrentMission(nextMissionId) {
+            const cur = MISSIONS[gameState.currentMissionId];
+            gameState.wallet += cur.reward;
+            gameState.xp += cur.xp;
+            gameState.completedMissions.push(gameState.currentMissionId);
+            gameState.currentMissionId = nextMissionId;
+            sounds.success();
+            showToast(`Mission Completed! Reward: ₹${cur.reward} & +${cur.xp} XP`, 'success');
+            updateRank();
+        }
+
+        function updateRank() {
+            if (gameState.xp >= 400) gameState.rank = 'Senior';
+            else if (gameState.xp >= 200) gameState.rank = 'Junior';
+            else if (gameState.xp >= 100) gameState.rank = 'Sophomore';
+            else gameState.rank = 'Freshman';
+        }
+
+        /* ==================== TIME & CURFEW LOGIC ==================== */
+        let timeAccumulator = 0;
+        function updateGameTime(dt) {
+            timeAccumulator += dt;
+            if (timeAccumulator >= 1.0) {
+                timeAccumulator = 0;
+                gameState.minute += 2;
+                if (gameState.minute >= 60) {
+                    gameState.minute = 0;
+                    gameState.hour += 1;
+                    gameState.energy = Math.max(0, gameState.energy - 1);
+
+                    if (gameState.hour === 20 && gameState.minute === 0) {
+                        checkHostelCurfew();
+                    }
+                    if (gameState.hour >= 23) {
+                        advanceToNextDay();
+                    }
+                }
+            }
+        }
+
+        function checkHostelCurfew() {
+            const hostel = BUILDINGS.find(b => b.id === 'hostel');
+            const dist = Math.hypot(gameState.playerX - (hostel.x + hostel.w/2), gameState.playerY - (hostel.y + hostel.h/2));
+            if (dist > 300) {
+                gameState.wardenWarnings++;
+                gameState.wallet = Math.max(0, gameState.wallet - 50);
+                gameState.wardenFineTotal += 50;
+                gameState.xp = Math.max(0, gameState.xp - 20);
+                sounds.alarm();
+                showToast(`Warden Curfew Violation! Narendra fined ₹50 & Warning #${gameState.wardenWarnings}`, 'error');
+            } else {
+                showToast('Safely inside hostel before curfew! Warden pleased.', 'success');
+                sounds.success();
+            }
+        }
+
+        function advanceToNextDay() {
+            gameState.day++;
+            gameState.hour = 8;
+            gameState.minute = 0;
+            gameState.dailySpent = 0;
+
+            if (gameState.day === 3) gameState.level = 2;
+            if (gameState.day === 5) gameState.level = 3;
+            if (gameState.day > 7) {
+                triggerVictory();
+                return;
+            }
+
+            const dailyAllowance = LEVEL_CONFIG[gameState.level].budget;
+            gameState.wallet += dailyAllowance;
+            gameState.dailyLimit = dailyAllowance;
+
+            showToast(`Day ${gameState.day} started! Daily allowance ₹${dailyAllowance} credited.`, 'success');
+            sounds.coin();
+            saveGame();
+        }
+
+        function triggerVictory() {
+            gameState.screen = 'MENU';
+            showToast('Congratulations! Narendra successfully completed Campus Countdown!', 'success');
+            sounds.success();
+        }
+
+        /* ==================== BUTTON LISTENERS ==================== */
+        document.getElementById('btn-start').addEventListener('click', () => {
+            sounds.click();
+            document.getElementById('screen-menu').classList.add('hidden');
+            document.getElementById('game-hud').classList.remove('hidden');
+            gameState.screen = 'PLAYING';
+            initWorldEntities();
+        });
+
+        document.getElementById('btn-rules').addEventListener('click', () => {
+            sounds.click();
+            document.getElementById('modal-rules').classList.remove('hidden');
+        });
+        document.getElementById('btn-rules-close').addEventListener('click', () => {
+            sounds.click();
+            document.getElementById('modal-rules').classList.add('hidden');
+        });
+
+        document.getElementById('btn-leaderboard').addEventListener('click', () => {
+            sounds.click();
+            renderLeaderboard();
+            document.getElementById('modal-leaderboard').classList.remove('hidden');
+        });
+        document.getElementById('btn-lb-close').addEventListener('click', () => {
+            sounds.click();
+            document.getElementById('modal-leaderboard').classList.add('hidden');
+        });
+
+        document.getElementById('btn-reset').addEventListener('click', () => {
+            resetGameSave();
+        });
+
+        document.getElementById('audio-toggle-btn').addEventListener('click', () => {
+            sounds.muted = !sounds.muted;
+            showToast(sounds.muted ? 'Audio Muted' : 'Audio Enabled', 'info');
+        });
+
+        document.getElementById('btn-pause').addEventListener('click', () => {
+            sounds.click();
+            document.getElementById('modal-pause').classList.remove('hidden');
+        });
+        document.getElementById('btn-resume').addEventListener('click', () => {
+            sounds.click();
+            document.getElementById('modal-pause').classList.add('hidden');
+        });
+        document.getElementById('btn-save').addEventListener('click', () => {
+            saveGame();
+        });
+        document.getElementById('btn-quit').addEventListener('click', () => {
+            sounds.click();
+            document.getElementById('modal-pause').classList.add('hidden');
+            document.getElementById('game-hud').classList.add('hidden');
+            document.getElementById('screen-menu').classList.remove('hidden');
+            gameState.screen = 'MENU';
+            gameState.currentScene = 'WORLD';
+        });
+
+        function renderLeaderboard() {
+            const list = document.getElementById('leaderboard-list');
+            const demoScores = [
+                { name: 'Rahul S.', xp: 850, rank: 'Senior' },
+                { name: 'Narendra Soni (You)', xp: gameState.xp, rank: gameState.rank },
+                { name: 'Priya M.', xp: 740, rank: 'Junior' },
+                { name: 'Aman K.', xp: 520, rank: 'Sophomore' },
+                { name: 'Neha G.', xp: 310, rank: 'Freshman' }
+            ].sort((a,b) => b.xp - a.xp);
+
+            list.innerHTML = demoScores.map((s, idx) => `
+                <div class="flex justify-between items-center bg-slate-800/60 p-2.5 rounded-xl border border-slate-700/50">
+                    <div class="flex items-center gap-2.5">
+                        <span class="font-bold text-xs text-indigo-400">#${idx+1}</span>
+                        <span class="font-medium text-slate-200">${s.name}</span>
+                    </div>
+                    <div class="text-right">
+                        <span class="text-xs font-bold text-amber-400">${s.xp} XP</span>
+                        <div class="text-[10px] text-slate-400">${s.rank}</div>
+                    </div>
+                </div>
+            `).join('');
+        }
+
+        /* ==================== GAME LOOP & RENDERING ==================== */
+        let lastTime = performance.now();
+        let activeBuilding = null;
+
+        function gameLoop(timestamp) {
+            const dt = (timestamp - lastTime) / 1000;
+            lastTime = timestamp;
+
+            if (gameState.screen === 'PLAYING') {
+                updateGameTime(dt);
+
+                if (gameState.currentScene === 'WORLD') {
+                    updatePlayerWorld();
+                    updateNPCs();
+                    updateVehicles();
+                    renderWorld();
+                } else {
+                    updatePlayerInterior();
+                    renderInterior();
+                }
+
+                updateHUD();
+            }
+
+            requestAnimationFrame(gameLoop);
+        }
+
+        function updatePlayerWorld() {
+            let dx = 0;
+            let dy = 0;
+
+            if (keys['w'] || keys['arrowup']) dy -= 1;
+            if (keys['s'] || keys['arrowdown']) dy += 1;
+            if (keys['a'] || keys['arrowleft']) dx -= 1;
+            if (keys['d'] || keys['arrowright']) dx += 1;
+
+            if (touchActive && (Math.abs(joystickDeltaX) > 0.1 || Math.abs(joystickDeltaY) > 0.1)) {
+                dx = joystickDeltaX;
+                dy = joystickDeltaY;
+            }
+
+            if (dx !== 0 || dy !== 0) {
+                const len = Math.hypot(dx, dy);
+                dx /= len;
+                dy /= len;
+
+                gameState.playerX += dx * gameState.playerSpeed;
+                gameState.playerY += dy * gameState.playerSpeed;
+            }
+
+            gameState.playerX = Math.max(50, Math.min(WORLD_WIDTH - 50, gameState.playerX));
+            gameState.playerY = Math.max(50, Math.min(WORLD_HEIGHT - 50, gameState.playerY));
+
+            let nearestBuilding = null;
+            for (let b of BUILDINGS) {
+                const bx = b.x + b.w / 2;
+                const by = b.y + b.h / 2;
+                const dist = Math.hypot(gameState.playerX - bx, gameState.playerY - by);
+                if (dist < 180) {
+                    nearestBuilding = b;
+                    break;
+                }
+            }
+
+            activeBuilding = nearestBuilding;
+            const promptEl = document.getElementById('interaction-prompt');
+            if (nearestBuilding) {
+                promptEl.classList.remove('hidden');
+                document.getElementById('prompt-location-name').innerText = nearestBuilding.name;
+            } else {
+                promptEl.classList.add('hidden');
+            }
+        }
+
+        function updatePlayerInterior() {
+            let dx = 0;
+            let dy = 0;
+
+            if (keys['w'] || keys['arrowup']) dy -= 1;
+            if (keys['s'] || keys['arrowdown']) dy += 1;
+            if (keys['a'] || keys['arrowleft']) dx -= 1;
+            if (keys['d'] || keys['arrowright']) dx += 1;
+
+            if (touchActive && (Math.abs(joystickDeltaX) > 0.1 || Math.abs(joystickDeltaY) > 0.1)) {
+                dx = joystickDeltaX;
+                dy = joystickDeltaY;
+            }
+
+            if (dx !== 0 || dy !== 0) {
+                const len = Math.hypot(dx, dy);
+                dx /= len;
+                dy /= len;
+
+                gameState.interiorPlayerX += dx * gameState.playerSpeed;
+                gameState.interiorPlayerY += dy * gameState.playerSpeed;
+            }
+
+            gameState.interiorPlayerX = Math.max(100, Math.min(canvas.width - 100, gameState.interiorPlayerX));
+            gameState.interiorPlayerY = Math.max(100, Math.min(canvas.height - 100, gameState.interiorPlayerY));
+
+            const exitDist = Math.hypot(gameState.interiorPlayerX - (canvas.width / 2), gameState.interiorPlayerY - (canvas.height - 100));
+            const promptEl = document.getElementById('interaction-prompt');
+            promptEl.classList.remove('hidden');
+            if (exitDist < 120) {
+                document.getElementById('prompt-location-name').innerText = 'Exit to Open World';
+            } else {
+                document.getElementById('prompt-location-name').innerText = 'Interact with Counter / Room';
+            }
+        }
+
+        function updateNPCs() {
+            for (let npc of npcs) {
+                npc.x += npc.vx;
+                npc.y += npc.vy;
+                if (npc.x < 100 || npc.x > WORLD_WIDTH - 100) npc.vx *= -1;
+                if (npc.y < 100 || npc.y > WORLD_HEIGHT - 100) npc.vy *= -1;
+            }
+        }
+
+        function updateVehicles() {
+            for (let v of vehicles) {
+                v.x += v.speed;
+                if (v.x < -100) v.x = WORLD_WIDTH + 100;
+                if (v.x > WORLD_WIDTH + 100) v.x = -100;
+            }
+        }
+
+        function updateHUD() {
+            const h = String(gameState.hour % 12 || 12).padStart(2, '0');
+            const m = String(gameState.minute).padStart(2, '0');
+            const ampm = gameState.hour >= 12 ? 'PM' : 'AM';
+            document.getElementById('hud-clock').innerText = `${h}:${m} ${ampm}`;
+            document.getElementById('hud-day').innerText = gameState.day;
+            document.getElementById('hud-level').innerText = gameState.level;
+            document.getElementById('hud-wallet').innerText = '₹' + gameState.wallet.toLocaleString();
+            document.getElementById('hud-limit').innerText = `₹${Math.max(0, gameState.dailyLimit - gameState.dailySpent)} left`;
+            document.getElementById('hud-energy-text').innerText = `${gameState.energy}%`;
+            document.getElementById('hud-energy-bar').style.width = `${gameState.energy}%`;
+
+            const curMission = MISSIONS[gameState.currentMissionId];
+            if (curMission) {
+                document.getElementById('hud-mission-title').innerText = curMission.title;
+            }
+        }
+
+        function renderWorld() {
+            ctx.clearRect(0, 0, canvas.width, canvas.height);
+
+            ctx.save();
+            const camX = canvas.width / 2 - gameState.playerX;
+            const camY = canvas.height / 2 - gameState.playerY;
+            ctx.translate(camX, camY);
+
+            ctx.fillStyle = '#0f172a';
+            ctx.fillRect(0, 0, WORLD_WIDTH, WORLD_HEIGHT);
+
+            ctx.fillStyle = '#1e293b';
+            ctx.fillRect(0, 850, WORLD_WIDTH, 120);
+            ctx.fillRect(0, 1750, WORLD_WIDTH, 120);
+            ctx.fillRect(1350, 0, 120, WORLD_HEIGHT);
+            ctx.fillRect(2350, 0, 120, WORLD_HEIGHT);
+
+            for (let b of BUILDINGS) {
+                ctx.fillStyle = 'rgba(0, 0, 0, 0.4)';
+                ctx.fillRect(b.x + 10, b.y + 10, b.w, b.h);
+
+                ctx.fillStyle = b.color;
+                ctx.beginPath();
+                ctx.roundRect(b.x, b.y, b.w, b.h, 16);
+                ctx.fill();
+                ctx.lineWidth = 3;
+                ctx.strokeStyle = '#ffffff22';
+                ctx.stroke();
+
+                ctx.fillStyle = '#0f172a';
+                ctx.fillRect(b.x + 20, b.y + 20, b.w - 40, 40);
+                ctx.fillStyle = '#ffffff';
+                ctx.font = 'bold 14px Outfit';
+                ctx.textAlign = 'center';
+                ctx.fillText(b.icon + ' ' + b.name, b.x + b.w / 2, b.y + 45);
+            }
+
+            for (let npc of npcs) {
+                ctx.fillStyle = npc.color;
+                ctx.beginPath();
+                ctx.arc(npc.x, npc.y, 12, 0, Math.PI * 2);
+                ctx.fill();
+            }
+
+            for (let v of vehicles) {
+                ctx.fillStyle = v.color;
+                ctx.beginPath();
+                ctx.roundRect(v.x, v.y, 60, 30, 8);
+                ctx.fill();
+            }
+
+            // Player Narendra Soni
+            ctx.fillStyle = '#6366f1';
+            ctx.shadowColor = '#6366f1';
+            ctx.shadowBlur = 15;
+            ctx.beginPath();
+            ctx.arc(gameState.playerX, gameState.playerY, 16, 0, Math.PI * 2);
+            ctx.fill();
+            ctx.shadowBlur = 0;
+
+            ctx.fillStyle = '#ffffff';
+            ctx.font = 'bold 12px Outfit';
+            ctx.textAlign = 'center';
+            ctx.fillText(gameState.role === 'warden' ? 'Warden Sharma' : 'Narendra Soni', gameState.playerX, gameState.playerY - 24);
+
+            ctx.restore();
+
+            if (gameState.hour >= 19 || gameState.hour < 6) {
+                ctx.fillStyle = 'rgba(2, 6, 23, 0.45)';
+                ctx.fillRect(0, 0, canvas.width, canvas.height);
+            }
+        }
+
+        function renderInterior() {
+            ctx.clearRect(0, 0, canvas.width, canvas.height);
+
+            ctx.fillStyle = '#090d16';
+            ctx.fillRect(0, 0, canvas.width, canvas.height);
+
+            ctx.fillStyle = '#1e293b';
+            ctx.fillRect(80, 80, canvas.width - 160, canvas.height - 160);
+            ctx.fillStyle = '#0f172a';
+            ctx.fillRect(100, 100, canvas.width - 200, canvas.height - 200);
+
+            // Exit Door
+            ctx.fillStyle = '#4f46e5';
+            ctx.fillRect(canvas.width / 2 - 50, canvas.height - 110, 100, 30);
+            ctx.fillStyle = '#ffffff';
+            ctx.font = 'bold 12px Outfit';
+            ctx.textAlign = 'center';
+            ctx.fillText('🚪 EXIT DOOR', canvas.width / 2, canvas.height - 90);
+
+            // Counter / Desk
+            ctx.fillStyle = '#334155';
+            ctx.fillRect(canvas.width / 2 - 120, 180, 240, 80);
+            ctx.fillStyle = '#94a3b8';
+            ctx.font = 'bold 14px Outfit';
+            ctx.fillText(gameState.currentScene.replace('INTERIOR_', '').toUpperCase() + ' COUNTER', canvas.width / 2, 225);
+
+            // Player
+            ctx.fillStyle = '#6366f1';
+            ctx.shadowColor = '#6366f1';
+            ctx.shadowBlur = 15;
+            ctx.beginPath();
+            ctx.arc(gameState.interiorPlayerX, gameState.interiorPlayerY, 18, 0, Math.PI * 2);
+            ctx.fill();
+            ctx.shadowBlur = 0;
+
+            ctx.fillStyle = '#ffffff';
+            ctx.font = 'bold 12px Outfit';
+            ctx.textAlign = 'center';
+            ctx.fillText('Narendra Soni', gameState.interiorPlayerX, gameState.interiorPlayerY - 26);
+        }
+
+        requestAnimationFrame(gameLoop);
+    </script>
+</body>
+</html>
